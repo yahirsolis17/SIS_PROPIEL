@@ -125,7 +125,7 @@ class Pago(models.Model):
     pagado = models.DecimalField(max_digits=10, decimal_places=2)
     fecha = models.DateField(auto_now_add=True)
     verificado = models.BooleanField(default=False)
-    archivo = models.ImageField(upload_to='comprobantes/')
+    archivo = models.ImageField(upload_to='users/comprobantes/')
     
     def saldo_pendiente(self):
         return self.total - self.pagado
