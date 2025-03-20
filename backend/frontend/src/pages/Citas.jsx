@@ -20,7 +20,7 @@ const Citas = () => {
   const [selectedEspecialidad, setSelectedEspecialidad] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState("");
-  const [comprobante, setComprobante] = useState(null);
+  const [comprobante, setComprobante] = useState(null); // Si luego se usa en otro endpoint
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -74,7 +74,8 @@ const Citas = () => {
         "fecha_hora",
         `${selectedDate.toISOString().split("T")[0]}T${selectedTime}`
       );
-      formData.append("comprobante", comprobante);
+      // Se elimina la línea de comprobante ya que no forma parte del modelo Cita
+      // formData.append("comprobante", comprobante);
       formData.append("tipo", "I");
 
       console.log("Enviando formulario con datos:", {
@@ -136,7 +137,7 @@ const Citas = () => {
             <button
               type="submit"
               className="btn-citas-confirm"
-              disabled={loading || !comprobante}
+              disabled={loading || !selectedTime}
             >
               {loading ? "Agendando..." : "Confirmar Cita"}
             </button>
