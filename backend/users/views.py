@@ -70,6 +70,9 @@ class CitaListCreateAPI(generics.ListCreateAPIView):
         if not especialidad_id:
             raise serializers.ValidationError({"especialidad": "Este campo es requerido para asignar un doctor."})
         
+        # Obtener el objeto de Especialidad
+        especialidad = get_object_or_404(Especialidad, pk=especialidad_id)
+        
         # Buscar un doctor con la especialidad y rol adecuado
         doctor = User.objects.filter(
             especialidad_id=especialidad_id,
@@ -79,11 +82,13 @@ class CitaListCreateAPI(generics.ListCreateAPIView):
         if not doctor:
             raise serializers.ValidationError({"doctor": "No hay un doctor disponible para esa especialidad."})
         
-        # Guardar la cita asignando paciente y doctor
+        # Guardar la cita asignando paciente, doctor y especialidad
         serializer.save(
             paciente=self.request.user,
-            doctor=doctor
+            doctor=doctor,
+            especialidad=especialidad
         )
+
 
 
 class RegisterView(generics.CreateAPIView):
