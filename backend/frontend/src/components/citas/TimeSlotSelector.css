@@ -1,0 +1,110 @@
+/* src/components/citas/TimeSlotSelector.css */
+
+:root {
+    --primary: #0A6E7D;          /* Azul oscuro */
+    --text-dark: #2C3E50;        /* Texto oscuro */
+    --border-radius: 0.5rem;
+    --transition: all 0.3s ease;
+    --font-family: 'Poppins', sans-serif;
+    --slot-width: 200px;         /* Ajusta para que coincida con tu input de fecha */
+  }
+  
+  /* Contenedor principal (no define ancho fijo para todo, 
+     sino que la etiqueta y el input se ordenan en slot-row) */
+  .time-slot-selector {
+    margin-bottom: 1rem;
+    font-family: var(--font-family);
+  }
+  
+  /* Fila que alinea la etiqueta y el "input" en la misma línea */
+  .slot-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Espacio horizontal entre label y input */
+  }
+  
+  /* Etiqueta */
+  .slot-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 1rem;
+  }
+  
+  /* Contenedor relativo para posicionar el dropdown debajo del "input" */
+  .slot-wrapper {
+    position: relative;
+  }
+  
+  /* Div que simula el input (mismo estilo que tu input de fecha) */
+  .slot-input {
+    width: var(--slot-width);
+    padding: 0.6rem 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    color: var(--text-dark);
+    background-color: #fff;
+    transition: var(--transition);
+    cursor: pointer;
+    box-sizing: border-box;
+    position: relative;
+  }
+  
+  /* Flecha personalizada */
+  .slot-input::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0.9rem;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 0.4rem solid transparent;
+    border-right: 0.4rem solid transparent;
+    border-top: 0.4rem solid #666; /* color de la flecha */
+  }
+  
+  /* Hover */
+  .slot-input:hover {
+    border-color: var(--primary);
+  }
+  
+  /* Deshabilitado */
+  .disabled {
+    background-color: #f2f2f2;
+    color: #aaa;
+    cursor: not-allowed;
+  }
+  
+  /* Menú desplegable */
+  .options-dropdown {
+    position: absolute;
+    top: calc(100% + 5px); /* Justo debajo del slot-input */
+    left: 0;
+    width: var(--slot-width);
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    background-color: #fff;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  /* Opciones individuales */
+  .option-item {
+    padding: 0.6rem 0.9rem;
+    font-size: 1rem;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .option-item:hover {
+    background-color: var(--primary);
+    color: #fff;
+  }
+  

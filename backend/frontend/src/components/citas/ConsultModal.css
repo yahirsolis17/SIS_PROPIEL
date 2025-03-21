@@ -1,0 +1,308 @@
+/* ConsultModal.css */
+:root {
+    --primary: #0A6E7D;
+    --secondary: #1496B7;
+    --accent: #FF7F50;
+    --text-dark: #2C3E50;
+    --text-light: #F8F9FA;
+    --border-radius: 1.2rem;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-family: 'Poppins', sans-serif;
+    --box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+    --gradient-primary: linear-gradient(135deg, #0A6E7D 0%, #1496B7 100%);
+  }
+  
+  /* Animaciones */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  .consult-modal-dialog {
+    max-width: 920px;
+    min-height: 560px;
+    animation: fadeIn 0.4s ease-out;
+  }
+  
+  .consult-modal-content {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: none;
+    transform: translateZ(0);
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: var(--box-shadow);
+  }
+  
+  .consult-modal-header {
+    background: var(--gradient-primary);
+    color: var(--text-light);
+    padding: 1.8rem 2.4rem;
+    position: relative;
+    border-bottom: 3px solid rgba(255,255,255,0.1);
+  }
+  
+  .consult-modal-header .modal-title {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: slideIn 0.5s ease-out;
+  }
+  
+  .consult-modal-body {
+    padding: 2.4rem;
+    background: transparent;
+  }
+  
+  .consult-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 2.4rem;
+    margin-bottom: 2rem;
+  }
+  
+  .consult-section {
+    background: white;
+    border-radius: calc(var(--border-radius) * 0.8);
+    padding: 2rem;
+    box-shadow: 0 6px 20px rgba(10, 110, 125, 0.08);
+    transition: var(--transition);
+    border: 1px solid rgba(10, 110, 125, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .consult-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--gradient-primary);
+    opacity: 0;
+    transition: var(--transition);
+  }
+  
+  .consult-section:hover::before {
+    opacity: 1;
+  }
+  
+  .section-title {
+    color: var(--primary);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.6rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(10, 110, 125, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+  }
+  
+  .section-title-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(10, 110, 125, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .patient-details-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.2rem;
+  }
+  
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background: rgba(10, 110, 125, 0.03);
+    border-radius: 8px;
+    transition: var(--transition);
+  }
+  
+  .detail-item:hover {
+    transform: translateX(8px);
+    background: rgba(10, 110, 125, 0.05);
+  }
+  
+  .detail-label {
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.7;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  
+  .detail-value {
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding-left: 1.8rem;
+  }
+  
+  .comprobante-container {
+    position: relative;
+    margin-bottom: 1.6rem;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: var(--transition);
+    border: 2px solid rgba(10, 110, 125, 0.1);
+  }
+  
+  .comprobante-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    transition: var(--transition);
+    cursor: zoom-in;
+  }
+  
+  .comprobante-img:hover {
+    transform: scale(1.03);
+  }
+  
+  .payment-details-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  .payment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(10, 110, 125, 0.03);
+    border-radius: 8px;
+  }
+  
+  .payment-label {
+    color: var(--text-dark);
+    opacity: 0.7;
+    font-weight: 500;
+  }
+  
+  .payment-value {
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+  
+  .action-container {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-top: 2rem;
+    border: 2px solid rgba(10, 110, 125, 0.1);
+    backdrop-filter: blur(4px);
+  }
+  
+  .action-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .action-select {
+    background: white;
+    border: 2px solid rgba(10, 110, 125, 0.15);
+    padding: 1rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    transition: var(--transition);
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230A6E7D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.2em;
+  }
+  
+  .action-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(10, 110, 125, 0.15);
+  }
+  
+  .error-message {
+    color: #dc3545;
+    margin-top: 1rem;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  
+  .consult-modal-footer {
+    background: rgba(248, 249, 250, 0.95);
+    padding: 1.5rem 2.4rem;
+    border-top: 1px solid rgba(0,0,0,0.08);
+  }
+  
+  .btn-modal {
+    padding: 0.9rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: var(--transition);
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: var(--transition);
+  }
+  
+  .btn-modal:hover::before {
+    opacity: 1;
+  }
+  
+  .btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+  }
+  
+  .btn-secondary {
+    background: rgb(180, 188, 188);
+    color: var(--text-dark);
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+  
+  @media (max-width: 992px) {
+    .consult-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .consult-modal-dialog {
+      max-width: 95%;
+    }
+    
+    .detail-value {
+      font-size: 1rem;
+    }
+  }

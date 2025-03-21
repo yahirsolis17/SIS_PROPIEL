@@ -107,7 +107,7 @@ const PacienteDashboard = ({ cardAnimation }) => {
                         <td>${pago.total}</td>
                         <td>${pago.pagado}</td>
                         <td>{pago.verificado ? 'Sí' : 'No'}</td>
-                        <td>{new Date(pago.fecha).toLocaleDateString('es-MX')}</td>
+                        <td>{new Date(pago.fecha).toLocaleString('es-MX')}</td>
                       </tr>
                     ))}
                   </tbody>

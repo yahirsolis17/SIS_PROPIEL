@@ -1,11 +1,11 @@
+// src/components/citas/EspecialidadSelector.jsx
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Spinner } from 'react-bootstrap';
+import "./EspecialidadSelector.css";
 
 const EspecialidadSelector = ({ especialidades, selectedEspecialidad, onChange }) => {
   return (
-    <div className="mb-3">
-      <label className="form-label">Seleccione especialidad:</label>
+    <div className="especialidad-selector mb-3">
+      <label className="form-label">Seleccione una especialidad:</label>
       <select
         value={selectedEspecialidad}
         onChange={(e) => onChange(e.target.value)}
