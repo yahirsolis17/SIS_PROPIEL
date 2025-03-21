@@ -4,6 +4,9 @@ from datetime import timedelta
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 SECRET_KEY = 'django-insecure-si+0)rv4=8$1959#...'
 DEBUG = True

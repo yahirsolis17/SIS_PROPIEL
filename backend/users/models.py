@@ -109,7 +109,6 @@ class Horario(models.Model):
     def __str__(self):
         return f"{self.doctor.nombre} - {dict(self.DIAS_SEMANA)[self.dia_semana]} {self.hora_inicio} - {self.hora_fin}"
 
-# Modelo Pago: El comprobante se guarda en el campo 'archivo'
 class Pago(models.Model):
     paciente = models.ForeignKey(
         'User',
@@ -125,13 +124,14 @@ class Pago(models.Model):
     pagado = models.DecimalField(max_digits=10, decimal_places=2)
     fecha = models.DateField(auto_now_add=True)
     verificado = models.BooleanField(default=False)
-    archivo = models.ImageField(upload_to='users/comprobantes/')
+    comprobante = models.ImageField(upload_to='users/comprobantes/')  # Renombrado desde 'archivo'
     
     def saldo_pendiente(self):
         return self.total - self.pagado
 
     def __str__(self):
         return f"Pago {self.id} - {self.paciente.nombre}"
+
 
 class Cita(models.Model):
     ESTADOS = (

@@ -209,12 +209,22 @@ class HorarioCreateAPI(generics.CreateAPIView):
 class PagoCreateAPI(generics.CreateAPIView):
     queryset = Pago.objects.all()
     serializer_class = PagoSerializer
-    permission_classes = [IsAuthenticated, IsRoleMatching]
-    
+    permission_classes = [IsAuthenticated]
+
     def perform_create(self, serializer):
-        cita_id = self.request.data.get('cita')
-        cita = get_object_or_404(Cita, pk=cita_id, paciente=self.request.user)
-        serializer.save(paciente=self.request.user, cita=cita)
+        cita_id = self.request.data.get("cita")
+        paciente = self.request.user
+        cita = get_object_or_404(Cita, pk=cita_id, paciente=paciente)
+
+        # Guardar el pago con total predeterminado de 900 y sin verificar
+        serializer.save(
+            paciente=paciente,
+            cita=cita,
+            total=900,
+            pagado=0,  # Se llenará más adelante si se verifica
+            verificado=False,
+        )
+
 
 # Actualización en la creación de citas subsecuentes: 
 # Se elimina la referencia al campo 'comprobante'
@@ -275,7 +285,7 @@ class CitaSubsecuenteCreateAPI(APIView):
             )
 
 class CitaConfirmAPI(APIView):
-    permission_classes = [IsAuthenticated, IsRoleMatching]
+    permission_classes = [IsAuthenticated]
     
     def post(self, request, pk):
         cita = get_object_or_404(Cita, pk=pk, doctor=request.user)
@@ -284,30 +294,53 @@ class CitaConfirmAPI(APIView):
                 {'error': 'La cita ya fue procesada o cancelada'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
-        # Verificar comprobante a través de la relación Pago
+        # Obtener la acción solicitada (confirmar o cancelar)
+        accion = request.data.get('accion', '').lower()
+        
+        # Buscar el pago asociado a la cita
         pago = cita.pagos.first()
-        if not pago or not pago.verificado:
+        if not pago:
             return Response(
-                {'error': 'El comprobante no está verificado'}, 
+                {'error': 'No se encontró un pago asociado a la cita.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        cita.estado = 'C'
-        cita.save()
-        
-        if cita.tipo == 'I':
-            if not Tratamiento.objects.filter(
-                paciente=cita.paciente,
-                doctor=cita.doctor,
-                activo=True
-            ).exists():
-                Tratamiento.objects.create(
+        if accion == 'cancelar':
+            # Si se decide cancelar la cita, se marca como cancelada
+            cita.estado = 'X'
+            cita.save()
+            return Response(
+                {'status': 'Cita cancelada por comprobante no verificado'},
+                status=status.HTTP_200_OK
+            )
+        elif accion == 'confirmar':
+            # Aquí, al confirmar, actualizamos el pago:
+            pago.verificado = True
+            pago.pagado = pago.total  # En este caso, 900
+            pago.fecha = timezone.now()
+            pago.save()
+            
+            # Actualizamos la cita como confirmada
+            cita.estado = 'C'
+            cita.save()
+            
+            # Si es la cita inicial y no hay tratamiento activo, se crea uno
+            if cita.tipo == 'I':
+                if not Tratamiento.objects.filter(
                     paciente=cita.paciente,
                     doctor=cita.doctor,
-                    frecuencia_dias=15
-                )
-        
-        return Response({'status': 'Cita confirmada'})
+                    activo=True
+                ).exists():
+                    Tratamiento.objects.create(
+                        paciente=cita.paciente,
+                        doctor=cita.doctor,
+                        frecuencia_dias=15
+                    )
+            
+            return Response({'status': 'Cita confirmada'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Acción no válida.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TratamientoAPI(generics.RetrieveUpdateAPIView):
     queryset = Tratamiento.objects.all()

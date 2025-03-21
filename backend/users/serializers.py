@@ -157,21 +157,29 @@ class HorarioSerializer(serializers.ModelSerializer):
 class PacienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'nombre', 'apellidos', 'role']
+        fields = ['id', 'nombre', 'apellidos', 'edad', 'sexo', 'peso', 'telefono', 'role']
 
 class CitaSerializer(serializers.ModelSerializer):
     doctor = DoctorSerializer(read_only=True)
     especialidad = EspecialidadSerializer(read_only=True)
     estado = serializers.CharField(source='get_estado_display', read_only=True)
     paciente = PacienteSerializer(read_only=True)
+    pagos = serializers.SerializerMethodField()
 
     class Meta:
         model = Cita
         fields = [
             'id', 'paciente', 'doctor', 'especialidad', 
-            'fecha_hora', 'tipo', 'estado', 'tratamiento'
+            'fecha_hora', 'tipo', 'estado', 'tratamiento', 'pagos'
         ]
         read_only_fields = ('estado', 'tratamiento', 'paciente', 'doctor')
+
+    def get_pagos(self, obj):
+        # Retornamos los datos de pagos; se usa PagoSerializer para cada pago
+        from .models import Pago  # Importar localmente para evitar circulares
+        pagos = obj.pagos.all()
+        return PagoSerializer(pagos, many=True, context=self.context).data
+
 
 class TratamientoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -192,8 +200,11 @@ class TratamientoSerializer(serializers.ModelSerializer):
         ).exists():
             raise serializers.ValidationError("Ya existe un tratamiento activo para este paciente y doctor.")
         return data
-
+    
 class PagoSerializer(serializers.ModelSerializer):
+    comprobante = serializers.ImageField(use_url=True)
+    
     class Meta:
         model = Pago
         fields = '__all__'
+        read_only_fields = ['paciente', 'fecha', 'verificado', 'pagado', 'total']

@@ -5,6 +5,7 @@ import Login from "./pages/login";
 import Register from "./pages/Register"; // 🔹 Importa la página de registro
 import Dashboard from "./pages/Dashboard";
 import Citas from './pages/Citas';
+import PaymentPage from './pages/PaymentPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/register" element={<Register />} /> {/* 🔹 Nueva ruta */}
         <Route path="/dashboard/:role" element={<Dashboard />} />
         <Route path="/citas" element={<Citas />} />
+        <Route path="/pago/:citaId" element={<PaymentPage />} />
       </Routes>
     </Router>
   );
