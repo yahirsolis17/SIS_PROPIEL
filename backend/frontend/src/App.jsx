@@ -17,6 +17,7 @@ function App() {
         <Route path="/dashboard/:role" element={<Dashboard />} />
         <Route path="/citas" element={<Citas />} />
         <Route path="/pago/:citaId" element={<PaymentPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   );
