@@ -18,6 +18,7 @@ urlpatterns = [
     path('auth/verify/', VerifyAuthView.as_view(), name='verify-auth'),
     path('auth/login/', LoginView.as_view(), name="login"),
     path('auth/logout/', LogoutView.as_view(), name="logout"),
+    path('auth/register/', RegisterView.as_view(), name="register"),  # <-- Agrega esta línea
     path('create-user/', AdminUserView.as_view(), name="admin-create-user"),
     path('dashboard/<str:role>/', DashboardView.as_view(), name="dashboard"),
     path('especialidades/', EspecialidadListAPI.as_view(), name='especialidades-list'),
