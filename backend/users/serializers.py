@@ -81,7 +81,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate_password(self, value):
-        if len(value) < 8:
+        if len(value) < 5:
             raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
         if not any(char.isdigit() for char in value):
             raise serializers.ValidationError("La contraseña debe contener al menos un número.")

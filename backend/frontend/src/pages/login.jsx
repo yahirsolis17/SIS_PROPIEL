@@ -115,7 +115,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength="8"
+              minLength="5"
               placeholder="Mínimo 8 caracteres"
             />
             {errors.password && (

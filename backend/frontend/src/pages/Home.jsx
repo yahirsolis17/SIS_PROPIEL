@@ -1,72 +1,85 @@
-import { useEffect, useState } from 'react';
+// Home.jsx
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+// Importaciones de Bootstrap (CSS y JS)
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+
+// Tus estilos y assets
 import "./Home.css";
 import logo from "../assets/logo.png";
 import dermatologia from "../assets/dermatologia.jpg";
 import tamiz from "../assets/tamiz.jpg";
 import podologia from "../assets/podologia.jpg";
 
+// Datos de servicios
 const servicesData = [
   {
     id: 1,
     title: "Dermatología Clínica",
-    shortDesc: "Diagnóstico y tratamiento de enfermedades cutáneas con abordaje multidisciplinario",
+    shortDesc:
+      "Diagnóstico y tratamiento de enfermedades cutáneas con abordaje multidisciplinario",
     longDesc:
-      "Ofrecemos diagnóstico y tratamiento integral para una gran variedad de afecciones de la piel, incluyendo acné, psoriasis, dermatitis, entre otras. Nuestro equipo de especialistas utiliza tecnología de vanguardia para garantizar la atención que mereces.",
+      "Ofrecemos diagnóstico y tratamiento integral para una gran variedad de afecciones de la piel. Referencia: Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     image: dermatologia,
   },
   {
     id: 2,
     title: "Tamiz Neonatal",
-    shortDesc: "Tecnología de punta para detección temprana de alteraciones metabólicas",
+    shortDesc:
+      "Tecnología de punta para detección temprana de alteraciones metabólicas",
     longDesc:
-      "Nuestro tamiz neonatal incluye un amplio espectro de pruebas para detectar a tiempo alteraciones congénitas y metabólicas. Esto permite iniciar tratamientos oportunos para asegurar un desarrollo saludable.",
+      "Nuestro tamiz neonatal incluye un amplio espectro de pruebas para detectar a tiempo alteraciones congénitas. Referencia: Vestibulum ante ipsum primis in faucibus orci luctus.",
     image: tamiz,
   },
   {
     id: 3,
     title: "Podología Avanzada",
-    shortDesc: "Soluciones integrales para salud podológica y ortopedia especializada",
+    shortDesc:
+      "Soluciones integrales para salud podológica y ortopedia especializada",
     longDesc:
-      "Contamos con servicios especializados para el cuidado de tus pies, incluyendo la prevención y tratamiento de uñas encarnadas, juanetes y otras condiciones. Nuestro enfoque busca el bienestar integral y la corrección postural.",
+      "Contamos con servicios especializados para el cuidado de tus pies, garantizando la mayor precisión diagnóstica. Referencia: Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     image: podologia,
   },
 ];
 
-const Home = () => {
+function Home() {
   const navigate = useNavigate();
-
   const [activeService, setActiveService] = useState(null);
   const [closing, setClosing] = useState(false);
 
+  // Animación de reveal para secciones
   useEffect(() => {
     const handleScroll = () => {
-      const elements = document.querySelectorAll('.reveal');
-      elements.forEach(element => {
+      const elements = document.querySelectorAll(".reveal");
+      elements.forEach((element) => {
         const elementTop = element.getBoundingClientRect().top;
         const windowHeight = window.innerHeight;
         if (elementTop < windowHeight * 0.8) {
-          element.classList.add('active');
+          element.classList.add("active");
         }
       });
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Ejecuta al inicio para mostrar inmediatamente el contenido del Hero
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Navbar: efecto de scroll
   useEffect(() => {
-    const navbar = document.querySelector('.navbar-glass');
+    const navbar = document.querySelector(".navbar-glass");
     const onScroll = () => {
       if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
+        navbar.classList.add("scrolled");
       } else {
-        navbar.classList.remove('scrolled');
+        navbar.classList.remove("scrolled");
       }
     };
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const openServiceModal = (service) => {
@@ -83,7 +96,8 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      <nav className="navbar navbar-expand-lg fixed-top navbar-glass">
+      {/* Navbar */}
+      <nav className="navbar navbar-expand-lg fixed-top navbar-light navbar-glass">
         <div className="container">
           <div
             className="navbar-brand hover-scale"
@@ -97,10 +111,16 @@ const Home = () => {
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
           >
             <span className="navbar-toggler-icon"></span>
           </button>
-          <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <div
+            className="collapse navbar-collapse justify-content-end"
+            id="navbarNav"
+          >
             <ul className="navbar-nav align-items-center">
               <li className="nav-item hover-underline">
                 <a className="nav-link" href="#servicios">
@@ -113,8 +133,8 @@ const Home = () => {
                 </a>
               </li>
               <li className="nav-item hover-underline">
-                <a className="nav-link" href="#contacto">
-                  Contacto
+                <a className="nav-link" href="#ubicacion">
+                  Ubicación
                 </a>
               </li>
               <li className="nav-item">
@@ -131,11 +151,12 @@ const Home = () => {
         </div>
       </nav>
 
+      {/* Hero */}
       <section className="hero">
-        <div className="hero-content reveal">
+        <div className="hero-content">
           <h1 className="hero-title">Excelencia en Salud Dermatológica</h1>
           <p className="hero-subtitle">
-            Cuidado especializado con tecnología de vanguardia
+            Cuidado especializado con tecnología de vanguardias
           </p>
           <button className="btn-cta pulse" onClick={() => navigate("/login")}>
             Agenda tu Consulta
@@ -144,6 +165,7 @@ const Home = () => {
         <div className="hero-overlay"></div>
       </section>
 
+      {/* Sección de Servicios */}
       <section id="servicios" className="services-section">
         <div className="container">
           <h2 className="section-title reveal">Nuestros Servicios</h2>
@@ -154,14 +176,18 @@ const Home = () => {
                 className="service-card reveal"
                 onClick={() => openServiceModal(service)}
               >
-                <div className="card-image">
-                  <img src={service.image} alt={service.title} />
-                  <div className="card-overlay"></div>
-                </div>
-                <div className="card-content">
-                  <h3>{service.title}</h3>
-                  <p>{service.shortDesc}</p>
-                  <div className="card-cta">Saber más →</div>
+                <div className="card-inner">
+                  <div className="card-image">
+                    <img src={service.image} alt={service.title} />
+                  </div>
+                  <div className="card-info">
+                    <h3>{service.title}</h3>
+                    <p>{service.shortDesc}</p>
+                    <p className="card-reference">
+                      Referencia: Lorem ipsum dolor sit amet.
+                    </p>
+                    <div className="card-cta">Saber más →</div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -169,15 +195,15 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Sección "Nosotros" */}
       <section id="nosotros" className="about-section">
-        <div className="container reveal">
-          <h2 className="section-title">Acerca de Nosotros</h2>
+        <div className="container">
+          <h2 className="section-title reveal">Acerca de Nosotros</h2>
           <p className="about-text">
             En <strong>Pro-Piel</strong>, nuestro compromiso es brindar atención
-            médica especializada en el cuidado de la piel, con un enfoque
-            integral que combina la experiencia clínica con la tecnología más
-            avanzada. Con más de 10 años de trayectoria, nos apasiona velar por
-            tu salud dermatológica y la de toda tu familia.
+            médica especializada en el cuidado de la piel. Contamos con un equipo
+            de profesionales altamente capacitados y tecnología de punta para
+            garantizar diagnósticos precisos y tratamientos efectivos.
           </p>
         </div>
       </section>
@@ -209,25 +235,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Contacto */}
-      <section id="contacto" className="contact-section">
-        <div className="contact-form reveal">
-          <h2 className="form-title">Programa tu Consulta</h2>
-          <form>
-            <div className="input-group">
-              <input type="text" placeholder="Nombre completo" className="form-input" />
-            </div>
-            <div className="input-group">
-              <input type="tel" placeholder="Teléfono" className="form-input" />
-            </div>
-            <button className="btn-submit" type="submit">
-              Solicitar Llamada
-              <div className="arrow-wrapper">
-                <div className="arrow"></div>
-              </div>
-            </button>
-          </form>
-        </div>
+      {/* Sección de Ubicación - Mapa Amplio */}
+      <section id="ubicacion" className="contact-section">
         <div className="map-container reveal">
           <iframe
             title="Ubicación"
@@ -265,7 +274,7 @@ const Home = () => {
               </ul>
             </div>
             <div className="footer-contact reveal">
-              <h5>Contacto</h5>
+              <h5>Ubicación</h5>
               <p>
                 <i className="bi bi-geo-alt"></i> Cedro No. 0, Col. El Hujal
               </p>
@@ -283,15 +292,13 @@ const Home = () => {
         </div>
       </footer>
 
+      {/* Modal de Servicios Integrado */}
       {activeService && (
         <div
           className={`service-modal ${closing ? "closing" : ""}`}
           onClick={closeServiceModal}
         >
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={closeServiceModal}>
               &times;
             </button>
@@ -305,6 +312,6 @@ const Home = () => {
       )}
     </div>
   );
-};
+}
 
 export default Home;
