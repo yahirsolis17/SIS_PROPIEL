@@ -10,7 +10,8 @@ from .views import (
     VerifyAuthView, 
     TokenRefreshView, 
     PagoCreateAPI, 
-    HorarioCreateAPI
+    HorarioCreateAPI,
+    TamizResultadosAPI,
 )
 
 urlpatterns = [
@@ -30,4 +31,5 @@ urlpatterns = [
     path('pagos/', PagoListAPI.as_view(), name='pagos-list'),
     path('pagos/create/', PagoCreateAPI.as_view(), name='pagos-create'),
     path('horarios/', HorarioCreateAPI.as_view(), name='horarios-create'),
+    path('resultados/', TamizResultadosAPI.as_view(), name='tamiz-resultados'),
 ]

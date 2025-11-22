@@ -63,13 +63,9 @@ const PaymentPage = () => {
       formData.append("cita", citaId);
       formData.append("comprobante", comprobante);
 
-      // Obtener el token JWT almacenado y agregarlo a la cabecera
-      const token = localStorage.getItem("token");
-
       const response = await api.post("pagos/create/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: token ? `Bearer ${token}` : '',
         },
       });
       console.log("Pago creado:", response.data);

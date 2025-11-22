@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 from rest_framework import generics, status, serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -58,35 +58,78 @@ class CitaListCreateAPI(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = (
+            super()
+            .get_queryset()
+            .select_related('paciente', 'doctor', 'especialidad')
+            .prefetch_related('pagos')
+        )
+
+        user = self.request.user
+        estado = self.request.query_params.get('estado')
         paciente_id = self.request.query_params.get('paciente')
+        doctor_id = self.request.query_params.get('doctor')
+
+        # Visibilidad por rol
+        if user.role == 'PACIENTE':
+            qs = qs.filter(paciente=user)
+        elif user.role in ['DERMATOLOGO', 'PODOLOGO', 'TAMIZ']:
+            qs = qs.filter(doctor=user)
+        elif user.role != 'ADMIN':
+            return Cita.objects.none()
+
+        # Filtros adicionales (admin u otros que ya estén limitados)
         if paciente_id:
             qs = qs.filter(paciente_id=paciente_id)
-        return qs
+        if doctor_id:
+            qs = qs.filter(doctor_id=doctor_id)
+        if estado:
+            qs = qs.filter(estado=estado.upper()[0])
+
+        return qs.order_by('fecha_hora')
     
     def perform_create(self, serializer):
-        # Extraer la especialidad del request
         especialidad_id = self.request.data.get('especialidad')
+        fecha_hora_str = self.request.data.get('fecha_hora')
+
         if not especialidad_id:
             raise serializers.ValidationError({"especialidad": "Este campo es requerido para asignar un doctor."})
-        
-        # Obtener el objeto de Especialidad
+        if not fecha_hora_str:
+            raise serializers.ValidationError({"fecha_hora": "La fecha y hora son requeridas."})
+
+        try:
+            fecha_hora = datetime.fromisoformat(fecha_hora_str)
+        except ValueError:
+            raise serializers.ValidationError({"fecha_hora": "Formato inválido, use ISO 8601."})
+
         especialidad = get_object_or_404(Especialidad, pk=especialidad_id)
-        
-        # Buscar un doctor con la especialidad y rol adecuado
-        doctor = User.objects.filter(
-            especialidad_id=especialidad_id,
-            role__in=['DERMATOLOGO', 'PODOLOGO', 'TAMIZ']
-        ).first()
-        
-        if not doctor:
-            raise serializers.ValidationError({"doctor": "No hay un doctor disponible para esa especialidad."})
-        
-        # Guardar la cita asignando paciente, doctor y especialidad
+        dia_semana = fecha_hora.weekday() + 1
+        hora = fecha_hora.time()
+
+        horarios = (
+            Horario.objects.filter(
+                especialidad=especialidad,
+                dia_semana=dia_semana
+            )
+            .select_related('doctor')
+            .order_by('hora_inicio')
+        )
+
+        horario_disponible = None
+        for h in horarios:
+            if h.hora_inicio <= hora < h.hora_fin:
+                if not Cita.objects.filter(doctor=h.doctor, fecha_hora=fecha_hora).exists():
+                    horario_disponible = h
+                    break
+
+        if not horario_disponible:
+            raise serializers.ValidationError({"horario": "No hay horarios disponibles para esa fecha y hora."})
+
         serializer.save(
             paciente=self.request.user,
-            doctor=doctor,
-            especialidad=especialidad
+            doctor=horario_disponible.doctor,
+            especialidad=especialidad,
+            fecha_hora=fecha_hora
         )
 
 
@@ -105,7 +148,7 @@ class RegisterView(generics.CreateAPIView):
 
 class AdminUserView(generics.CreateAPIView):
     queryset = User.objects.all()
-    permission_classes = [IsAuthenticated, IsRoleMatching]
+    permission_classes = [IsAuthenticated]
     serializer_class = AdminUserSerializer
 
     def check_permissions(self, request):
@@ -152,18 +195,13 @@ class DashboardView(APIView):
         })
 
 class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        try:
-            refresh_token = request.COOKIES.get('refresh_token')
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            
-            response = Response({"detail": "Sesión cerrada correctamente."})
-            response.delete_cookie('access_token')
-            response.delete_cookie('refresh_token')
-            return response
-        except Exception as e:
-            return Response({"error": str(e)}, status=400)
+        response = Response({"detail": "Sesion cerrada correctamente."})
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+        return response
 
 class EspecialidadListAPI(generics.ListAPIView):
     serializer_class = EspecialidadSerializer
@@ -192,14 +230,20 @@ class HorarioDisponibleAPI(APIView):
         horarios = Horario.objects.filter(
             especialidad_id=especialidad_id,
             dia_semana=dia_semana
-        ).order_by('hora_inicio')
-        horas_disponibles = [h.hora_inicio.strftime("%H:%M") for h in horarios]
+        ).select_related('doctor').order_by('hora_inicio')
+
+        horas_disponibles = []
+        for h in horarios:
+            fecha_hora = datetime.combine(fecha_date, h.hora_inicio)
+            if not Cita.objects.filter(doctor=h.doctor, fecha_hora=fecha_hora).exists():
+                horas_disponibles.append(h.hora_inicio.strftime("%H:%M"))
+
         return Response({"horas_disponibles": horas_disponibles}, status=200)
 
 class HorarioCreateAPI(generics.CreateAPIView):
     queryset = Horario.objects.all()
     serializer_class = HorarioSerializer
-    permission_classes = [IsAuthenticated, IsRoleMatching]
+    permission_classes = [IsAuthenticated]
     
     def perform_create(self, serializer):
         if self.request.user.role not in ['ADMIN', 'DERMATOLOGO', 'PODOLOGO']:
@@ -229,7 +273,7 @@ class PagoCreateAPI(generics.CreateAPIView):
 # Actualización en la creación de citas subsecuentes: 
 # Se elimina la referencia al campo 'comprobante'
 class CitaSubsecuenteCreateAPI(APIView):
-    permission_classes = [IsAuthenticated, IsRoleMatching]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         tratamiento = Tratamiento.objects.filter(
@@ -244,7 +288,7 @@ class CitaSubsecuenteCreateAPI(APIView):
             )
 
         try:
-            cita_inicial = tratamiento.citas.filter(tipo='I').first()
+            cita_inicial = Cita.objects.filter(tratamiento=tratamiento, tipo='I').order_by('fecha_hora').first()
             if not cita_inicial:
                 return Response(
                     {"error": "No existe cita inicial vinculada al tratamiento"},
@@ -254,8 +298,9 @@ class CitaSubsecuenteCreateAPI(APIView):
             fecha_cita = tratamiento.proxima_cita()
             horario = Horario.objects.filter(
                 doctor=tratamiento.doctor,
-                dia=fecha_cita.date(),
-                hora_inicio__gte=fecha_cita.time()
+                dia_semana=fecha_cita.weekday() + 1,
+                hora_inicio__lte=fecha_cita.time(),
+                hora_fin__gt=fecha_cita.time()
             ).first()
 
             if not horario:
@@ -264,7 +309,12 @@ class CitaSubsecuenteCreateAPI(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Creamos la cita subsecuente sin el campo comprobante
+            if Cita.objects.filter(doctor=tratamiento.doctor, fecha_hora=fecha_cita).exists():
+                return Response(
+                    {"error": "La hora calculada ya está ocupada."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             Cita.objects.create(
                 paciente=request.user,
                 doctor=tratamiento.doctor,
@@ -345,7 +395,7 @@ class CitaConfirmAPI(APIView):
 class TratamientoAPI(generics.RetrieveUpdateAPIView):
     queryset = Tratamiento.objects.all()
     serializer_class = TratamientoSerializer
-    permission_classes = [IsAuthenticated, IsRoleMatching]
+    permission_classes = [IsAuthenticated]
     
     def get_object(self):
         return get_object_or_404(Tratamiento, paciente=self.request.user)
@@ -355,5 +405,27 @@ class PagoListAPI(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        user = self.request.user
         paciente_id = self.request.query_params.get('paciente')
-        return Pago.objects.filter(paciente_id=paciente_id)
+
+        if user.role == 'PACIENTE':
+            return Pago.objects.filter(paciente=user)
+        if user.role in ['DERMATOLOGO', 'PODOLOGO', 'TAMIZ']:
+            return Pago.objects.filter(cita__doctor=user)
+
+        qs = Pago.objects.all()
+        if paciente_id:
+            qs = qs.filter(paciente_id=paciente_id)
+        return qs
+
+
+class TamizResultadosAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != 'TAMIZ':
+            return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
+        # Endpoint de marcador: ajustar cuando exista modelo de resultados
+        return Response([], status=status.HTTP_200_OK)
+
+
